@@ -1,0 +1,69 @@
+#устанавливаю последнюю версию wal-g
+sudo wget https://github.com/wal-g/wal-g/releases/download/v3.0.5/wal-g-pg-ubuntu-22.04-amd64.tar.gz
+sudo tar -zxvf wal-g-pg-ubuntu-22.04-amd64.tar.gz
+sudo mv wal-g-pg-ubuntu-22.04-amd64 /usr/local/bin/wal-g
+sudo rm -rf /home/backups && sudo mkdir /home/backups && sudo chmod 777 /home/backups
+sudo -u postgres psql
+SHOW data_directory; -- /var/lib/postgresql/16/main
+#—оздать настроечный файл дл¤ wal-g под текущим пользователем = в /var/lib/pgsql/.walg.json
+sudo su postgres
+nano ~/.walg.json
+#«аполн¤ем настройками
+{
+"WALG_FILE_PREFIX": "/mnt/backup",
+"WALG_COMPRESSION_METHOD": "brotli",
+"WALG_DELTA_MAX_STEPS": "0",
+"PGDATA": "/var/lib/postgresql/16/main",
+"PGHOST": "/var/run/postgresql/.s.PGSQL.5432"
+}
+mkdir /var/lib/pgsql/log/
+su admin
+sudo nano /etc/postgresql/16/main/postgresql.conf
+#вставила в конце
+wal_level=replica
+archive_mode=on
+archive_command='/usr/local/bin/wal-g wal-push "%p" >> /mnt/backup/log/archive_command.log 2>&1'
+archive_timeout=60
+restore_command='/usr/local/bin/wal-g wal-fetch "%f" "%p" >> /mnt/backup/log/restore_command.log 2>&1'
+sudo pg_ctlcluster 16 main stop
+sudo su postgres
+#¬ставл¤ем данные
+psql -c "CREATE DATABASE otus;"
+psql otus -c "create table test(i int);"
+psql otus -c "insert into test values (10), (20), (30);"
+psql otus -c "select * from test;"
+#делаю бэкап
+/usr/local/bin/wal-g backup-push /var/lib/postgresql/16/main/
+#удаляю данные
+su admin
+sudo rm -rf /var/lib/postgresql/16/main/*
+#восстанавливаю
+su postgres
+/usr/local/bin/wal-g backup-fetch /var/lib/postgresql/16/main/ LATEST
+touch "/var/lib/postgresql/16/main/recovery.signal"
+#перезагружаю
+su admin
+sudo reboot
+#проверяю данные
+sudo su postgres psql 
+psql otus -c "select * from test;"
+
+
+sudo systemctl stop tomcat.service
+директория для бекапов теста /mnt/backup/test
+
+
+postgres@abc:~$ /usr/lib/postgresql/16/bin/pg_ctl restart -D /var/lib/postgresql/16/main
+
+# locale
+Если видим что-то такое:
+LANG=ru_RU.UTF-8
+LANGUAGE=
+LC_CTYPE="ru_RU.UTF-8"
+То локаль у нас верная.
+PostgreSQL при установке в среде Linux не будет нас спрашивать с какой локалью инициализировать кластер, а просто возьмет и инициализирует его с системной локалью по умолчанию.
+И что же теперь делать? Переустанавливать Ubuntu с нужной локалью? Нет конечно! Можем добавить локаль ru_RU.UTF-8 в систему и сделать ее локалью по умолчанию. Для этого нужно ввести следующую команду:
+# sudo dpkg-reconfigure locales
+Далее в списке выбираем нашу локаль как локаль по умолчанию и нажимаем ОК. Для применения настроек вводим следующую команду:
+# sudo update-locale LANG=ru_RU.UTF8
+и ОБЯЗАТЕЛЬНО перезагружаем систему.
