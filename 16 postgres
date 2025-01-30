@@ -1,0 +1,81 @@
+sudo apt update && sudo apt upgrade -y -q && echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee -a /etc/apt/sources.list.d/pgdg.list && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add - && sudo apt-get update && sudo apt -y install postgresql-16
+sudo nano /etc/postgresql/16/main/postgresql.conf
+sudo mount -t cifs -o username=sadmin //10.128.128.108/Share/pg 
+/mnt/backup/test
+/home/backups
+mount -t cifs -o vers=3.0,domain=zl.local,username=sadmin //10.128.128.108/Share/pg  /home/backups
+sudo apt install cifs-utils
+sudo wget https://github.com/wal-g/wal-g/releases/download/v3.0.5/wal-g-pg-ubuntu-22.04-amd64.tar.gz
+sudo tar -zxvf wal-g-pg-ubuntu-22.04-amd64.tar.gz
+sudo -u postgres psql
+sudo /usr/bin/far2l
+sudo chmod 777 /mnt/backup/test
+systemctl status postgresql@16-main.service
+$ sudo -i -u postgres
+$ /usr/lib/postgresql/16/bin/pg_ctl restart -D /var/lib/postgresql/16/main
+
+sudo apt-get purge postgres.*
+
+
+//srv-bkp.zl.local/nau_pgsql /mnt/backup cifs credentials=/etc/cifs.credentials,uid=115,gid=121,file_mode=0666,dir_mode=0755 0 0
+
+10.128.84.2 front
+10.128.84.3 back
+
+ sudo rm -rf /var/lib/postgresql/, sudo rm -rf /var/log/postgresql/, sudo rm -rf /etc/postgresql/. 1
+Удалить пользователя postgres. Обычно во время установки PostgreSQL создаёт системного пользователя postgres. Чтобы удалить его, запустите команду: sudo deluser postgres
+
+Выполнить команду sudo add-apt-repository ppa:far2l-team/ppa. 15
+Обновить систему с помощью команды sudo apt update. 15
+Установить Far2l командой sudo apt install far2l. 15
+
+du -sh *
+
+Если видим что-то такое:
+LANG=ru_RU.UTF-8
+LANGUAGE=
+LC_CTYPE="ru_RU.UTF-8"
+То локаль у нас верная.
+PostgreSQL при установке в среде Linux не будет нас спрашивать с какой локалью инициализировать кластер, а просто возьмет и инициализирует его с системной локалью по умолчанию.
+И что же теперь делать? Переустанавливать Ubuntu с нужной локалью? Нет конечно! Можем добавить локаль ru_RU.UTF-8 в систему и сделать ее локалью по умолчанию. Для этого нужно ввести следующую команду:
+# sudo dpkg-reconfigure locales
+Далее в списке выбираем нашу локаль как локаль по умолчанию и нажимаем ОК. Для применения настроек вводим следующую команду:
+# sudo update-locale LANG=ru_RU.UTF8
+и ОБЯЗАТЕЛЬНО перезагружаем систему.
+
+cd /etc/postgresql/16/main/
+sudo nano /etc/postgresql/16/main/postgresql.conf
+#listen_addresses = 'localhost'
+listen_addresses = '*'
+
+sudo nano /etc/postgresql/16/main/pg_hba.conf
+#host    all             all             127.0.0.1/32            scram-sha-256 password
+host    all             all             0.0.0.0/0               scram-sha-256 
+
+sudo pg_ctlcluster 16 main restart
+
+Подключение к Postgres:
+psql -h 10.128.34.255 -U postgres
+
+sudo nano /etc/locale.gen
+sudo locale-gen
+sudo locale-gen ru_RU.UTF-8
+
+pip3 install -U --ignore-installed  psycopg2-binary
+ssh-keygen -R 
+ssh admin904@10.128.88.2
+
+curl -L https://github.com/etcd-io/etcd/releases/download/v3.5.5/etcd-v3.5.5-linux-amd64.tar.gz -o /tmp/etcd-v3.5.5-linux-amd64.tar.gz
+
+tar xzvf /tmp/etcd-v3.5.5-linux-amd64.tar.gz -C /tmp/etcd-download-test --strip-components=1
+rm -f /tmp/etcd-v3.5.5-linux-amd64.tar.gz
+
+eth0
+sudo apt install net-tools
+ifconfig
+INT_NAME="eth0"
+
+ETCD_HOST_IP=$(ip a show eth0 | grep "inetb" | awk '{print $2}' | cut -d/ -f1)
+nmcli device show eth0 | grep 'IP'
+
+под админом из винды scp E:\Share\pg\pg.zip admin904@10.128.34.182:/home/backups
