@@ -1,0 +1,75 @@
+scope: patroni
+name: srv-nmn-db01
+
+restapi:
+    listen: 10.128.84.10:8008
+    connect_address: 10.128.84.10:8008
+etcd:
+    hosts: srv-nmn-db01:2379,srv-nmn-db02:2379,srv-nmn-lb01:2379
+
+bootstrap:
+    dcs:
+        ttl: 30
+        loop_wait: 10
+        retry_timeout: 10
+        maximum_lag_on_failover: 1048576
+        postgresql:
+            use_pg_rewind: true
+
+    method: clone_with_walg
+    clone_with_walg:
+        command: /home/backups/clone_with_walg.sh
+        parameters:
+            listen_addresses='*'
+            lc_messages = 'ru_RU.UTF-8'
+        recovery_conf:
+            restore_command: /usr/local/bin/wal-g wal-fetch "%f" "%p"
+            recovery_target_timeline: latest
+            recovery_target_action: promote
+            recovery_target_time: ''
+
+    initdb:
+    - encoding: UTF8
+    - data-checksums
+
+    pg_hba:
+    - host replication replicator 10.128.84.0/24 md5
+    - host all all 10.128.34.0/24 md5
+
+    users:
+         admin:
+           password: admin_321
+           options:
+             - createrole
+             - createdb
+
+postgresql:
+    listen: 127.0.0.1, 10.128.84.10:5432
+    connect_address: 10.128.84.10:5432
+    data_dir: /var/lib/postgresql/16/main
+    bin_dir: /usr/lib/postgresql/16/bin
+    pgpass: /tmp/pgpass0
+    authentication:
+        replication:
+            username: replicator
+            password: rep-pass_321
+        superuser:
+            username: postgres
+            password: postgres
+        rewind:
+            username: rewind_user
+            password: rewind_password_321
+    parameters:
+        unix_socket_directories: '.'
+        archive_mode: 'on'
+        archive_timeout: 300s
+        archive_command: '/usr/local/bin/wal-g wal-push "%p" >> /mnt/backup/log/archive_command.log 2>&1'
+    recovery_conf:
+        restore_command: '/usr/local/bin/wal-g wal-fetch "%f" "%p" >> /mnt/backup/log/restore_command.log 2>&1'
+
+tags:
+    nofailover: false
+    noloadbalance: false
+    clonefrom: false
+    nosync: false
+
