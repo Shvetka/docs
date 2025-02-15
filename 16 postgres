@@ -79,3 +79,68 @@ ETCD_HOST_IP=$(ip a show eth0 | grep "inetb" | awk '{print $2}' | cut -d/ -f1)
 nmcli device show eth0 | grep 'IP'
 
 под админом из винды scp E:\Share\pg\pg.zip admin904@10.128.34.182:/home/backups
+find -newermt "jan 20, 2025"| xargs  tar -czvPf  /mnt/backup/test/wal1.tar.gz
+\
+SELECT slot_name, pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(),restart_lsn)) AS replicationSlotLag,active
+FROM pg_replication_slots;
+select pg_drop_replication_slot('cp_w5hhwdfnqhsjeajmyq_fuw_7ysneoc4sksib6_cfxzeaq');
+pg_drop_replication_slot
+
+из под postgres patroni /etc/patroni.yml
+
+Stop Patroni on all replica nodes and finally on master
+sudo systemctl stop patroni
+
+Update configuration file /etc/patroni.yml
+recovery_target_time: '2020-06-08 08:52:00'
+
+Remove cluster from etcd
+patronictl -c /etc/patroni.yml remove postgres
+
+Backup and remove data directory on master /data/patroni
+
+Run Patroni on master - it automatically call script clone_with_walg.sh
+sudo systemctl start patroni
+
+sudo locale-gen ru_RU.UTF-8
+
+CREATE ROLE replicator WITH REPLICATION LOGIN PASSWORD 'rep-pass_321';
+ journalctl -u patroni
+ 
+ CREATE ROLE replicator WITH REPLICATION LOGIN PASSWORD 'rep-pass_321';
+ https://access.crunchydata.com/documentation/patroni/2.0.2/settings/
+ SELECT datname FROM pg_database;
+ 
+ sudo localedef -i en_US -f UTF-8 en_US.UTF-8
+ 
+ db.user=nausd4
+db.password=sbLAgdN0EBnJNv
+
+patronictl -c /etc/patroni.yml switchover --master srv-nmn-db01 --candidate srv-nmn-db02 --scheduled NOW --force patroni
+
+ journalctl -u patroni -e
+ 
+ Чтобы установить клиент PostgreSQL 16 на Ubuntu, нужно:
+
+Обновить индекс пакетов и установить необходимые пакеты: sudo apt update sudo apt install gnupg2 wget nano. 1
+Добавить репозиторий PostgreSQL 16: sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'. 1
+Импортировать ключ подписи репозитория: curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg. 1
+Обновить список пакетов: sudo apt update. 1
+Установить клиент PostgreSQL 16: sudo apt install postgresql-client-16. 1
+
+Бардин Дмитрий Анатольевич
+sudo -s  apt update 
+sudo -s 
+wget https://repo.zabbix.com/zabbix/7.2/release/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest_7.2+ubuntu22.04_all.deb
+dpkg -i zabbix-release_latest_7.2+ubuntu22.04_all.deb
+apt update 
+apt install zabbix-agent2
+apt install  zabbix-agent2-plugin-postgresql 
+zabbix-agent2-plugin-mongodb zabbix-agent2-plugin-mssql
+nano /etc/zabbix/zabbix_agent2.conf
+# Здесь правим
+# Server=srv-zbx.zl.local
+# Hostname=<имя сервера на который устанавливаешь клиент>
+systemctl restart zabbix-agent2
+systemctl enable zabbix-agent2
+df -h
