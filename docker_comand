@@ -1,0 +1,94 @@
+docker ps -a список контейнеров
+docer rm (удалить)
+docker run --name -d образ
+docker kill
+docker rename
+docker stats статистика
+docker inspect (вся инфо как было создано)
+docker inspect -f "{{.state.status}}"
+docker logs mongodb | grep "id" -m 2(2 первые строки) -f онлайн
+docker exec -w /root mongo pwd
+docker exec -it mongo bash
+docker exec mongo bash -c 'mongo --version> mongo2.txt'
+docker pull скачивает
+docker save сохраняет архив образа\
+docker history как строился образ
+/var/lib/docker/verlay2 слои
+/var/lib/docker/containers там лежат контейнеры
+image - набор слоев
+docker image ls список всех скачаных образов(--format --filter)
+Чтобы удалить image, нужно удалить все контейнеры на него ссылающиеся
+docker network ls
+docker network inspect bridge
+docker network create my-network 
+docker network connect my-network node-1
+docker volume ls
+docker volume create demo
+curl "127.0.0.1:3000/set?id=123"
+ Ansible
+ playbook
+ - name:user
+   hosts:demo
+   vars_prompt:
+    -name:user
+	 prompt:"Введите"
+   tasks:
+    -name : Create user 
+      vars:
+         user:alaricode
+      user:
+	    name: "{{ user }}"
+        state: present
+      become: true
+      register: out
+    -debug:
+        var:out	
+---------------------------------------
+ Ansible
+ playbook
+ - name:user
+   hosts:demo
+   vars_prompt:
+    -name:user
+	 prompt:"Введите"
+   tasks:
+    -name : Create user 
+      vars:
+         user:alaricode
+      user:
+	    name: "{{ user }}"
+        state: present
+      become: true
+	  debugger: always
+	  r - превыполняет
+	  p task.args
+	  p task.vars
+	  p task_vars
+------------------------------------------------------
+ Ansible
+ playbook
+ - name:user
+   hosts:demo
+   any_errors_fatal:true
+   vars_prompt:
+    -name:user
+	 prompt:"Введите"
+   tasks:
+-------------------------------------------------------
+ignor-errors: true - игнорирование ошибок
+
+-name: fail on faild
+ command: echo "FAILED"
+ register: command_result
+ failed_when: "'FAILWD in command_result.stdout'"
+---------------------------------------------------
+when: ansible_facts['distribution'] == 'Ubuntu' 
+
+tasks:
+ -name: mm
+  block:
+    -name:reboot
+	 shell:reboot
+	 async:1000
+	 poll:0
+  become: true
