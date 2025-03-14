@@ -1,0 +1,38 @@
+8 кб размер страницы (страничная организация)
+pg_ctl reload
+pg_ctlcluster 13 main reload
+select pg_reload_conf();
+есть параметры требут перзапуск
+show config_faile;
+
+select sourceline, name, settings, applied from pg_file_settings where 
+sourcefile likr '/etc/postgresql/16/main/postgresql.conf' (applied t можно без перезагрузки)
+
+представление pg_settings
+
+SELECT name, setting, unit, pending_restarrt
+FROM pg_settings
+WHERE context = 'postmaster' and name like;
+журнал сообщений
+
+psql -c "select now()"
+
+3 режима остановки -m
+fast - все отрубить
+smart - текущие ждет когда отключатся
+immediate - все завершит
+ls /var/log/postgresql
+psql \c - коннект пользователь юзер
+psql \gx переверачивает шапку в столбик
+\! выполнить командную строку
+\setenv TEST Hello установит переменую среды
+\o dba_log выводит в файл
+
+select format('select count(*) from '%I',tablename ) from pg_tables limit 3 \g (tuples_only=on format=unligned) dba_log
+\i dba_log выполнит все командв
+psql < filename
+psql -f filename
+
+\set TEST hi - строковые переменные
+\d для просмотра структуры таблицы
+psqlrc пользовательские настройки
