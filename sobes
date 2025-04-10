@@ -1,0 +1,90 @@
+8 кб размер страницы (страничная организация)
+pg_ctl reload
+pg_ctlcluster 13 main reload
+select pg_reload_conf();
+есть параметры требут перзапуск
+show config_faile;
+
+select sourceline, name, settings, applied from pg_file_settings where 
+sourcefile likr '/etc/postgresql/16/main/postgresql.conf' (applied t можно без перезагрузки)
+
+представление pg_settings
+
+SELECT name, setting, unit, pending_restarrt
+FROM pg_settings
+WHERE context = 'postmaster' and name like;
+журнал сообщений
+
+psql -c "select now()"
+
+3 режима остановки -m
+fast - все отрубить
+smart - текущие ждет когда отключатся
+immediate - все завершит
+ls /var/log/postgresql
+psql \c - коннект пользователь юзер
+psql \gx переверачивает шапку в столбик
+\! выполнить командную строку
+\setenv TEST Hello установит переменую среды
+\o dba_log выводит в файл
+
+select format('select count(*) from '%I',tablename ) from pg_tables limit 3 \g (tuples_only=on format=unligned) dba_log
+\i dba_log выполнит все командв
+psql < filename
+psql -f filename
+
+\set TEST hi - строковые переменные
+\d для просмотра структуры таблицы
+psqlrc пользовательские настройки
+
+Транзакция последовательность команд при условии что выполнена полностью и без помех со стороны других транзакций
+select * from pg_stat_all_tables where relid='pgbench_acc'::regclass \gx
+select * from pg_statio_all_tables where relid='pgbench_acc'::regclass \gx(чтение)
+pg_stat_xact* статистика для текущей транзакции
+pg_stat_database - глобальная статистика
+pg_stat_bgwriter - создание контрольных точек
+select pid,query, state,ait_event,wait_event_type,pg_blocking_pids(pid)
+from pg_stat_activity where backend_type='client backend' \gx
+idle_in_transaction_session_timeout завершает параметры
+select pg_terminate_backend(b.pid) from unnest(pg_blocking_pids(67305)) as b(pid)
+pg_terminate_backend - убивает запрос
+
+зп_ыефе_зкщпкуыы можно смотреть как работают некоторые команды
+\du посмотреть пользователей
+set log_min_duration _statement=0 пишет все логи когда входит пользователь например
+reassign owned by alice to bob передает объекты другой роли
+\dn+ alice узнатьпривелегии схемы
+\dp tablename привилегии
+grant all
+select вместе с апдейтом
+with grant option  можно передавать
+
+alter function foo() security definer вызов с правами создавшего
+create policy защита строк
+row lewel security
+выполняется первая строчка из hba_conf
+хранятся в системном аталоге pg_authid
+600 rw только для пользователя
+pg_receivewal потоковый архив журнала
+recovery.signal
+standby.signal
+primary_conninfo
+pg_basebackup -R
+pg_cluster 13 replica promote
+pg_rewind - откатывпает потяряные wal
+логический команды ddl не использует поток изменений тоже применяется
+pg_stat_subscription - подписка на изменения
+pg_upgrade или логическая репликация
+uuid - 
+FROM/JOIN. Сначала выполняются операторы FROM и/или JOIN, чтобы определить интересующие данные. 1
+WHERE. 1 Выполняется фильтрация данных: строки, которые не соответствуют условиям, исключаются из результирующего набора. 2
+GROUP BY. 1 Данные группируются по указанным столбцам. 2
+HAVING. 1 Здесь применяются условия к группам данных, и группы, которые не соответствуют условиям, исключаются. 2
+SELECT. 1 Выбираются столбцы для включения в результирующий набор. 2
+ORDER BY. 1 Определяется порядок сортировки строк в результирующем наборе. 2
+LIMIT/OFFSET
+old_snapshot_threshhold
+idle in transaction session timeout
+при частых обновлениях уменьшение fillfactor
+aotovacuum=on
+track_counts=on
