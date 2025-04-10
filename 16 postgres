@@ -144,3 +144,5 @@ nano /etc/zabbix/zabbix_agent2.conf
 systemctl restart zabbix-agent2
 systemctl enable zabbix-agent2
 df -h
+у меня вообще так:
+pg_dump --host 127.0.0.1 --blobs --verbose --format "custom" --username "nausd4" --file backup_nausd4_$(date +'%F-%H-%M-%S').backup nausd4
