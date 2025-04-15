@@ -1,0 +1,157 @@
+alter system set log_archive_config='dg_config=(ORCL,ORCLDR)' scope=both;
+
+файл паролей select * from v$pwfile_users;
+
+Создание spf
+SQL> create pfile='/data/backup/pfilePROD.ora' from spfile;
+
+SQL> startup nomount pfile='E:\backup\pfilePROD.ora';
+
+SQL> create spfile from pfile='E:\backup\pfilePROD.ora';
+
+SQL> shutdown immediate;
+
+SQL> startup;
+
+CREATE DATABASE LINK my_db_link
+CONNECT TO myUser IDENTIFIED BY myPassword
+USING
+'
+(
+    DESCRIPTION=
+    (
+        ADDRESS=
+        (PROTOCOL=TCP)
+        (HOST=host-name-heren)
+        (PORT=1521)
+    )
+    (CONNECT_DATA=(SID=theNameOfTheDatabase))
+)';
+
+catalog start with 'E:\Backup'; 
+
+restore standby controlfile from 
+alter database recover managed standby database disconnect;
+shutdown immediate;
+STARTUP FORCE OPEN READ WRITE
+
+ SELECT MESSAGE FROM V$DATAGUARD_STATUS;
+ 
+ RECOVER MANAGED STANDBY DATABASE FINISH;
+ 
+ crosscheck archivelog all;
+ 
+ https://habr.com/ru/articles/120495/
+ https://dbaclass.com/article/how-to-recreate-physical-standby-controlfile/
+ 
+ select switchover_status from v$database ;
+ 
+ RMAN> backup current controlfile for standby format 'S:\backup\standbycontrol.ctl';
+ 
+ select SWITCHOVER_STATUS from V$DATABASE;
+ 
+ crosscheck archivelog all;
+ change archivelog all crosscheck;
+ 
+ RUN
+{
+  ALLOCATE CHANNEL ch11 TYPE DISK MAXPIECESIZE 50G;
+  BACKUP AS COMPRESSED BACKUPSET
+  FORMAT 'S:\backup\%d_D_%T_%u_s%s_p%p'
+  DATABASE
+  PLUS ARCHIVELOG
+  FORMAT 'S:\backup\%d_A_%T_%u_s%s_p%p';
+  RELEASE CHANNEL ch11;
+}
+BACKUP AS COMPRESSED BACKUPSET  FORMAT 'S:\backup\%d_D_%T_%u_s%s_p%p' DATABASE;
+
+первая бд не видит https://habr.com/ru/articles/645907/
+
+qex-79P-8B4-7XV
+SYS       5qnO#Dz1		omp_adm
+
+tuz
+Чтобы вставить вне Nextcloud Office, сначала нажмите кнопку "загрузить"
+JAXH7V4nlw2l
+JAXH7V4nlw2l
+bo_action_result
+Восстановление RMAN AMERICAN_AMERICA.CL8MSWIN1251
+
+удаление tmp (удалить физически из папок temp)
+alter database tempfile 'g:\app\ORADATA\omega\TEMP02.DBF' drop; E:\APP\ORADATA\OMEGA\TEMP01.DBF
+alter database default temporary tablespace TEMP_NEW1;
+alter tablespace TEMP_NEW ADD TEMPFILE 'E:/app/oradata/omega/temp_new.dbf' size 100m autoextend on;
+create temporary tablespace temp_new tempfile 'E:/app/oradata/omega/temp_new1.dbf' size 100m autoextend on;
+alter database open resetlogs;
+ select switchover_status from v$database
+alter database disable BLOCK CHANGE TRACKING;
+alter database open resetlogs;
+
+https://orakldba.com/how-to-drop-and-recreate-temp-tablespace-in-oracle/
+
+---------------------------------------------------------------------------------
+oracle$ sqlplus / as sysdba
+SQL> startup nomount pfile='<ORACLE_HOME>/dbs/pfileSTBY.ora';
+SQL> create spfile from pfile='<ORACLE_HOME>/dbs/pfileSTBY.ora';
+SQL> shutdown immediate;
+SQL> startup nomount;
+----------------------------------------------------------------------------------
+oracle$ rman target /
+RMAN> restore controlfile from "/backup/standbycontrol.ctl";
+RMAN> startup mount;
+RMAN> catalog start with '/backup/';
+RMAN> restore database;
+RMAN> recover database;
+RMAN> quit;
+----------------------------------------------------------------------------------
+SQL> shutdown immediate;
+SQL> startup;
+
+----------------------------------------------------------------------------------
+https://dbaclass.com/article/how-to-open-standby-database-when-primary-database-is-lost/
+
+ ALTER DATABASE RECOVER MANAGED STANDBY DATABASE FINISH;
+ ALTER DATABASE ACTIVATE PHYSICAL STANDBY DATABASE;
+ ALTER DATABASE OPEN;
+ 
+ 
+SQL> select max(sequence#) from v$log_history;
+recover standby database;
+
+$sourceDir = 'S:\arch'
+$targetDir = '\\srv-omegadb6\arch'
+
+Get-ChildItem $sourceDir | where {$_.Lastwritetime -ge (date).addhours(-0.5)} | `
+    foreach{
+        $targetFile = $targetDir + $_.FullName.SubString($sourceDir.Length);
+        New-Item -ItemType File -Path $targetFile -Force;
+        Copy-Item $_.FullName -destination $targetFile
+    }
+	
+SELECT instance_name, instance_number, host_name, version FROM v$instance;
+SELECT name FROM v$active_services WHERE STATUS = 'ACTIVE';
+SELECT * FROM v$listener_network;
+
+select name, dbid from v$database;
+------------------------------------------
+ALTER DATABASE ENABLE BLOCK CHANGE TRACKING
+USING FILE 'E:\app\oradata\block_chg_file\test_db_block_change_track.f' REUSE;
+
+SELECT STATUS, FILENAME FROM V$BLOCK_CHANGE_TRACKING;
+Если зависло на shutdown, ввести команду shutdown abort
+
+скопировать файл паролей
+
+create pfile='/data/backup/pfilePROD.ora' from spfile;
+ select switchover_status from v$database
+Убедиться, что рабочая база данных может быть переключена на роль резервной. Для этого нужно запросить столбец SWITCHOVER_STATUS представления V$DATABASE 
+в рабочей базе данных. Значение TO STANDBY или SESSIONS ACTIVE указывает, что база данных может быть переключена на роль резервной. 41
+Переключить рабочую базу данных в роль резервной с помощью команды ALTER DATABASE COMMIT TO SWITCHOVER TO PHYSICAL STANDBY WITH SESSION SHUTDOWN. 4
+Выключить и смонтировать бывшую рабочую базу данных с помощью команд SHUTDOWN ABORT и STARTUP MOUNT. 4
+Убедиться, что резервная база данных готова к переключению на роль основной. Для этого нужно запросить столбец SWITCHOVER_STATUS в резервной базе 
+анных. Значение TO PRIMARY или SESSIONS ACTIVE указывает, что резервная база данных готова к переключению на роль основной. 4
+Переключить резервную базу данных на роль основной с помощью команды ALTER DATABASE COMMIT TO SWITCHOVER TO PRIMARY WITH SESSION SHUTDOWN. 4
+Открыть новую рабочую базу данных с помощью команды ALTER DATABASE OPEN. 4
+Стартовать накат архивных журналов на новой резервной базе данных с помощью команды RECOVER MANAGED STANDBY DATABASE USING CURRENT LOGFILE DISCONNECT FROM SESSION. 4
+Для более точной инструкции по переводу базы данных рекомендуется обратиться к документации по работе с Oracle.
+
